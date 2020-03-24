@@ -1,11 +1,20 @@
+# os:
+#   - Visual Studio 2019
+# platform:
+#   - x64
+
+# Build worker image (VM template)
+# image: Visual Studio 2015
+
+
 environment:
   global:
     # git repo from which to pull orange3 sources
-    REPO: https://github.com/biolab/orange3.git
+    REPO: https://github.com/ales-erjavec/orange3.git
     # Branch/ref from which to pull
-    BUILD_BRANCH: master
+    BUILD_BRANCH: installer-conda-packages
     # Commit ref/tag to checkout
-    BUILD_COMMIT: FETCH_HEAD
+    BUILD_COMMIT: 'bef87621e84fdc3efbae1044c081a46b1e3110ef'
 
     # Build the package locally or use the build packages from
     # conda-forge / PyPI. The BUILD_COMMIT must match the package version
@@ -25,10 +34,10 @@ environment:
   # Note the python version here refers to the one included in the installer
   # not the one used for building/packaging
   matrix:
-    - PYTHON_VERSION: '3.6'
+    - PYTHON_VERSION: '3.7'
       PLATTAG: win_amd64
-      CONDA: C:\Miniconda36-x64\Scripts\conda
-      PYTHON: C:\Miniconda36-x64\python
+      CONDA: C:\Miniconda37-x64\Scripts\conda
+      PYTHON: C:\Miniconda37-x64\python
       CONDA_SPEC_FILE:
       # CONDA_SPEC_FILE: ..\specs\win\conda-spec.txt
 
@@ -44,7 +53,7 @@ cache:
   - '%LOCALAPPDATA%\pip\Cache -> appveyor.yml'
 
 build_script:
-  - git clone -q --depth 20 %REPO%
+  - git clone %REPO%
   - cd orange3
   - git fetch origin %BUILD_BRANCH%
   - git checkout %BUILD_COMMIT%
@@ -52,6 +61,17 @@ build_script:
   - set "PATH_BEFORE_BUILD=%PATH%"
   - set "PATH=C:\msys64\usr\bin;C:\Program Files (x86)\NSIS;%PATH%"
 
+  - >-
+    "%PYTHON%" --version
+  - >-
+    "%PYTHON%" -m pip --version
+  - >-
+    "%PYTHON%" -m pip list --format=freeze
+
+  - dir C:\Miniconda37-x64\pkgs\
+  - dir C:\Miniconda36-x64\pkgs\
+  # - dir C:\Miniconda38-x64\pkgs\
+  
   - if not "%CONDA%" == "" ( ..\ci\appveyor-conda-build.bat )
   - if "%CONDA%" == "" ( ..\ci\appveyor-build.bat )
 
@@ -62,9 +82,10 @@ build_script:
   - cd ..
 
 test_script:
-  # cleanup registry of anaconda reg keys
-  - reg delete HKEY_LOCAL_MACHINE\Software\Python\ContinuumAnalytics /f
-  - reg delete HKEY_CURRENT_USER\Software\Python\ContinuumAnalytics /f
+  # cleanup registry of anaconda reg keys -- this worked for Visual Studio 2015 image
+  # - reg delete HKEY_LOCAL_MACHINE\Software\Python\ContinuumAnalytics /f
+  # - reg delete HKEY_CURRENT_USER\Software\Python\ContinuumAnalytics /f
+  - dir orange3\
   - dir orange3\dist
   # Install in silent mode. Output has to be piped somewhere so the installer
   # runs 'attached' to the console.
