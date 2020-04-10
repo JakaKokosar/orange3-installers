@@ -25,6 +25,12 @@ environment:
   # Note the python version here refers to the one included in the installer
   # not the one used for building/packaging
   matrix:
+    - PYTHON_VERSION: '3.7'
+      PLATTAG: win_amd64
+      CONDA: C:\Miniconda37-x64\Scripts\conda
+      PYTHON: C:\Miniconda37-x64\python
+      CONDA_SPEC_FILE:
+
     - PYTHON_VERSION: '3.6'
       PLATTAG: win_amd64
       CONDA: C:\Miniconda36-x64\Scripts\conda
@@ -63,8 +69,8 @@ build_script:
 
 test_script:
   # cleanup registry of anaconda reg keys
-  - reg delete HKEY_LOCAL_MACHINE\Software\Python\ContinuumAnalytics /f
-  - reg delete HKEY_CURRENT_USER\Software\Python\ContinuumAnalytics /f
+  # - reg delete HKEY_LOCAL_MACHINE\Software\Python\ContinuumAnalytics /f
+  # - reg delete HKEY_CURRENT_USER\Software\Python\ContinuumAnalytics /f
   - dir orange3\dist
   # Install in silent mode. Output has to be piped somewhere so the installer
   # runs 'attached' to the console.

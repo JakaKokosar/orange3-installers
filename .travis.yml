@@ -1,5 +1,12 @@
-language: generic
-os: osx
+
+jobs:
+  include:
+    - os: osx
+      language: generic
+      env: PYTHON_VERSION=3.7.7
+    - os: osx
+      language: generic
+      env: PYTHON_VERSION=3.6.8
 
 env:
   global:
@@ -28,6 +35,8 @@ before_install:
 
 install:
   - APP=/Applications/Orange3.app
+  - echo $PYTHON_VERSION
+  - python3 --version
   - if [[ -d $APP ]]; then rm -rf $APP; fi
   - |-
     if [[ $BUILD_LOCAL ]]; then
@@ -36,7 +45,7 @@ install:
         PIP_ARGS=( --pip-arg={-r,../specs/macos/requirements.txt,Orange3==$BUILD_COMMIT} );
     fi
   - |-
-    ../scripts/macos/build-macos-app.sh "${PIP_ARGS[@]}" --python-version=3.6.8 "$APP"
+    ../scripts/macos/build-macos-app.sh "${PIP_ARGS[@]}" --python-version="$PYTHON_VERSION" "$APP"
   - |-
     ../scripts/macos/create-dmg-installer.sh --app "$APP" dist/Orange3.dmg
   - |-
